@@ -12,7 +12,7 @@ public final class RatingManager {
     // MARK: - Public Properties
     
     /// Whether the next rating request will show a sentiment gate or go straight to Apple review
-    public var willShowSentimentGate: Bool {
+    public var willShowSentimentGateWhenRequested: Bool {
         return configuration.enableSentimentGate && !sentimentGateCompleted
     }
     
@@ -38,28 +38,9 @@ public final class RatingManager {
     /// This will show the sentiment gate first if enabled and not completed
     public func requestRating() {
         if configuration.enableSentimentGate && !sentimentGateCompleted {
-            // open sentiment gate
-            print("🚀 Will open sentiment gate now!")
+            showSentimentGateAlert()
         } else {
             showAppStoreReview()
-        }
-    }
-    
-    /// Handle positive response from sentiment gate
-    public func handlePositiveResponse() {
-        markSentimentGateCompleted()
-        showAppStoreReview()
-    }
-    
-    /// Handle negative response from sentiment gate
-    public func handleNegativeResponse() {
-        markSentimentGateCompleted()
-        
-        // Open feedback URL if provided
-        if let feedbackURL = configuration.feedbackURL {
-            #if canImport(UIKit)
-            UIApplication.shared.open(feedbackURL)
-            #endif
         }
     }
     
@@ -70,6 +51,73 @@ public final class RatingManager {
     }
     
     // MARK: - Private Methods
+    
+    private func showSentimentGateAlert() {
+        #if canImport(UIKit)
+        Task {
+            await presentSentimentAlert()
+        }
+        #else
+        // On macOS, show App Store review directly if UIKit is not available
+        showAppStoreReview()
+        #endif
+    }
+    
+    #if canImport(UIKit)
+    private func presentSentimentAlert() async {
+        guard let windowScene = await getActiveWindowScene(),
+              let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+              let rootViewController = window.rootViewController else {
+            // Fallback to direct App Store review if we can't present the alert
+            showAppStoreReview()
+            return
+        }
+        
+        let alert = UIAlertController(
+            title: configuration.sentimentQuestion,
+            message: nil,
+            preferredStyle: .alert
+        )
+        
+        // Positive response action
+        let positiveAction = UIAlertAction(
+            title: configuration.positiveButtonText,
+            style: .default
+        ) { [weak self] _ in
+            self?.handlePositiveResponse()
+        }
+        
+        // Negative response action
+        let negativeAction = UIAlertAction(
+            title: configuration.negativeButtonText,
+            style: .cancel
+        ) { [weak self] _ in
+            self?.handleNegativeResponse()
+        }
+        
+        alert.addAction(positiveAction)
+        alert.addAction(negativeAction)
+        
+        // Present the alert
+        rootViewController.present(alert, animated: true)
+    }
+    #endif
+    
+    private func handlePositiveResponse() {
+        markSentimentGateCompleted()
+        showAppStoreReview()
+    }
+    
+    private func handleNegativeResponse() {
+        markSentimentGateCompleted()
+        
+        // Open feedback URL if provided
+        if let feedbackURL = configuration.feedbackURL {
+            #if canImport(UIKit)
+            UIApplication.shared.open(feedbackURL)
+            #endif
+        }
+    }
     
     private func markSentimentGateCompleted() {
         sentimentGateCompleted = true
@@ -96,3 +144,4 @@ public final class RatingManager {
     }
     #endif
 }
+

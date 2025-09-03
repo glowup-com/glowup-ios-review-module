@@ -25,18 +25,11 @@ import Foundation
 /// 
 /// // Create rating manager
 /// @State private var ratingManager = RatingManager(configuration: config)
-/// 
-/// // In your SwiftUI view
-/// if ratingManager.needsSentimentGate {
-///     // Show your sentiment gate UI
-/// }
+///
 /// 
 /// // Request rating
 /// ratingManager.requestRating()
 /// 
-/// // Handle responses
-/// ratingManager.handlePositiveResponse() // Shows App Store review
-/// ratingManager.handleNegativeResponse() // Opens feedback URL if configured
 /// ```
 
 public struct GlowupRatingKit {
