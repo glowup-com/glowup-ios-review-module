@@ -6,6 +6,7 @@ import UIKit
 
 /// Actor responsible for managing app rating requests
 @MainActor
+@Observable
 public final class RatingManager {
     private let configuration: Configuration
     private let storage: RatingStorage
@@ -133,3 +134,5 @@ public final class RatingManager {
     }
     #endif
 }
+
+

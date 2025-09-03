@@ -53,3 +53,5 @@ public struct SentimentGateConfiguration {
         self.feedbackURL = feedbackURL
     }
 }
+
+

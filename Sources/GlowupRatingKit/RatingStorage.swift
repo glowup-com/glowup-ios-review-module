@@ -84,3 +84,5 @@ internal final class RatingStorage {
         userDefaults.removeObject(forKey: StorageKeys.userLikesApp)
     }
 }
+
+
