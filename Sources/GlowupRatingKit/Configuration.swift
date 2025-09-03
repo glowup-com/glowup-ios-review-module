@@ -5,6 +5,9 @@ public struct Configuration {
     /// Whether to show a sentiment gate before the app store review
     public let enableSentimentGate: Bool
     
+    /// The sentiment gate title
+    public let sentimentGateTitle: String
+    
     /// The positive question to ask in the sentiment gate
     public let sentimentQuestion: String
     
@@ -19,12 +22,14 @@ public struct Configuration {
     
     public init(
         enableSentimentGate: Bool = true,
+        sentimentGateTitle: String = "How are we doing?",
         sentimentQuestion: String = "Are you enjoying this app?",
         positiveButtonText: String = "Yes!",
         negativeButtonText: String = "Not really",
         feedbackURL: URL? = nil
     ) {
         self.enableSentimentGate = enableSentimentGate
+        self.sentimentGateTitle = sentimentGateTitle
         self.sentimentQuestion = sentimentQuestion
         self.positiveButtonText = positiveButtonText
         self.negativeButtonText = negativeButtonText
